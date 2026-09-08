@@ -1,0 +1,4 @@
+@import "tailwindcss";
+@plugin "tailwindcss-primeui";
+
+/* Let PrimeNG own base element styling; disable Tailwind preflight resets that clash. */

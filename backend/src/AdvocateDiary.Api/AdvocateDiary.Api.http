@@ -1,0 +1,6 @@
+@AdvocateDiary.Api_HostAddress = http://localhost:5028
+
+GET {{AdvocateDiary.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

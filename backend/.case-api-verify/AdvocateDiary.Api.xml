@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>AdvocateDiary.Api</name>
+    </assembly>
+    <members>
+        <member name="T:AdvocateDiary.Api.Contracts.TokenRequest">
+            <summary>
+            OAuth2 token request (RFC 6749 §4.3 / §6), form-urlencoded. This shape exists so the Swagger UI
+            "Authorize" dialog can exchange a username + password for a bearer token by itself — the field
+            names are fixed by the spec, which is why they are snake_case rather than our usual JSON casing.
+            </summary>
+        </member>
+        <member name="P:AdvocateDiary.Api.Contracts.TokenRequest.GrantType">
+            <summary>"password" or "refresh_token".</summary>
+        </member>
+        <member name="P:AdvocateDiary.Api.Contracts.TokenRequest.Username">
+            <summary>The user's login identity — their email address. Required for grant_type=password.</summary>
+        </member>
+        <member name="P:AdvocateDiary.Api.Contracts.TokenRequest.Password">
+            <summary>Required for grant_type=password.</summary>
+        </member>
+        <member name="P:AdvocateDiary.Api.Contracts.TokenRequest.RefreshToken">
+            <summary>Required for grant_type=refresh_token.</summary>
+        </member>
+        <member name="T:AdvocateDiary.Api.Contracts.TokenResponse">
+            <summary>
+            OAuth2 token response. Swagger UI reads <c>access_token</c> and <c>token_type</c> off this to
+            build the Authorization header, so the property names must stay snake_case.
+            </summary>
+        </member>
+        <member name="M:AdvocateDiary.Api.Contracts.TokenResponse.#ctor(System.String,System.String,System.Int32,System.String)">
+            <summary>
+            OAuth2 token response. Swagger UI reads <c>access_token</c> and <c>token_type</c> off this to
+            build the Authorization header, so the property names must stay snake_case.
+            </summary>
+        </member>
+        <member name="T:AdvocateDiary.Api.Contracts.TokenErrorResponse">
+            <summary>OAuth2 error response (RFC 6749 §5.2).</summary>
+        </member>
+        <member name="M:AdvocateDiary.Api.Contracts.TokenErrorResponse.#ctor(System.String,System.String)">
+            <summary>OAuth2 error response (RFC 6749 §5.2).</summary>
+        </member>
+        <member name="M:AdvocateDiary.Api.Controllers.AuthController.Token(AdvocateDiary.Api.Contracts.TokenRequest,System.Threading.CancellationToken)">
+            <summary>
+            OAuth2 token endpoint. Backs the Swagger UI "Authorize" dialog so credentials can be
+            exchanged for a bearer token in place, without pasting a JWT by hand.
+            </summary>
+            <remarks>
+            Supports <c>grant_type=password</c> (username = the user's email address) and
+            <c>grant_type=refresh_token</c>. Accepts form-urlencoded input per RFC 6749.
+            </remarks>
+        </member>
+        <member name="T:AdvocateDiary.Api.Controllers.PlansController">
+            <summary>Subscription plans (Phase 6). Public — used by the pricing page.</summary>
+        </member>
+        <member name="T:AdvocateDiary.Api.Controllers.SubscriptionController">
+            <summary>Firm subscription + checkout (Phase 6).</summary>
+        </member>
+        <member name="M:AdvocateDiary.Api.Controllers.SubscriptionController.Confirm(AdvocateDiary.Application.Billing.ConfirmRequest,System.Threading.CancellationToken)">
+            <summary>Called by the payment return/webhook to mark paid and activate the licence.</summary>
+        </member>
+        <member name="T:AdvocateDiary.Api.Controllers.CaseDocumentsController">
+            <summary>Case documents (Phase 5): upload / list / download / delete via IFileStorage.</summary>
+        </member>
+        <member name="T:AdvocateDiary.Api.Controllers.CaseFeesController">
+            <summary>Per-case fee-received ledger (Phase 6).</summary>
+        </member>
+        <member name="T:AdvocateDiary.Api.Controllers.CasesController">
+            <summary>Case management (Phase 3). Tenant-scoped to the caller's firm.</summary>
+        </member>
+        <member name="T:AdvocateDiary.Api.Controllers.DashboardController">
+            <summary>Home dashboard KPIs (Phase 7).</summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "T:AdvocateDiary.Api.Controllers.DiaryController" -->
+        <member name="M:AdvocateDiary.Api.Controllers.DiaryController.CauseList(System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>Cause list for a date (defaults to today).</summary>
+        </member>
+        <member name="M:AdvocateDiary.Api.Controllers.DiaryController.Previous(System.Int32,System.Int32,System.Threading.CancellationToken)">
+            <summary>Overdue hearings (paginated — this list has no natural upper bound over time).</summary>
+        </member>
+        <member name="M:AdvocateDiary.Api.Controllers.DiaryController.Calendar(System.DateTime,System.DateTime,System.Threading.CancellationToken)">
+            <summary>Hearings between from and to (inclusive) — for the calendar.</summary>
+        </member>
+        <member name="T:AdvocateDiary.Api.Controllers.FirmController">
+            <summary>The caller's firm profile (Phase 1). Read for any user; update for FirmAdmin.</summary>
+        </member>
+        <member name="T:AdvocateDiary.Api.Controllers.LookupsController">
+            <summary>Global reference lookups (states, cities, salutations). Read-only, any authenticated user.</summary>
+        </member>
+        <member name="T:AdvocateDiary.Api.Controllers.MasterControllerBase`1">
+            <summary>
+            Generic CRUD base for firm-owned masters. Read for any authenticated user; mutations for FirmAdmin.
+            Concrete closed subclasses below are what ASP.NET Core discovers as controllers.
+            </summary>
+        </member>
+        <member name="T:AdvocateDiary.Api.Controllers.MeController">
+            <summary>Current user's own profile (Phase 1). Any authenticated user.</summary>
+        </member>
+        <member name="T:AdvocateDiary.Api.Controllers.NotificationsController">
+            <summary>Notification delivery log (Phase 4). Firm-scoped.</summary>
+        </member>
+        <member name="T:AdvocateDiary.Api.Controllers.PasswordResetController">
+            <summary>Forgot / reset password (Phase 1). Lives under /auth alongside AuthController.</summary>
+        </member>
+        <member name="T:AdvocateDiary.Api.Controllers.PublicController">
+            <summary>Public marketing endpoints (Phase 8): contact form + referrals. Anonymous.</summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "T:AdvocateDiary.Api.Controllers.ReportsController" -->
+        <member name="T:AdvocateDiary.Api.Controllers.UsersController">
+            <summary>Firm user management (Phase 1). FirmAdmin only; scoped to the caller's firm.</summary>
+        </member>
+    </members>
+</doc>
