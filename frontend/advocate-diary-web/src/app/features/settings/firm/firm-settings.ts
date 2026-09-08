@@ -4,6 +4,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
 import { CardModule } from 'primeng/card';
+import { forkJoin } from 'rxjs';
 import { IdentityService } from '../../../core/services/identity.service';
 
 @Component({
@@ -107,13 +108,13 @@ export class FirmSettings implements OnInit {
   saved = signal(false);
 
   ngOnInit() {
-    this.svc.getFirm().subscribe({
-      next: (f) => {
+    forkJoin({ firm: this.svc.getFirm(), user: this.svc.getMe() }).subscribe({
+      next: ({ firm: f, user }) => {
         this.m.set({
           name: f.name ?? '',
           address: f.address ?? '',
           city: f.city ?? '',
-          phone: f.phone ?? '',
+          phone: f.phone ?? user.phone ?? '',
           email: f.email ?? ''
         });
       },

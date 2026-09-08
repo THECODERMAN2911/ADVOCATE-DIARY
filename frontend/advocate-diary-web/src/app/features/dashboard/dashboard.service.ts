@@ -33,16 +33,18 @@ export class DashboardService {
     return this.http.get<DashboardSummary>(`${this.api}/dashboard/summary`);
   }
 
-  casesReport(includeArchived: boolean, page: number, pageSize: number): Observable<PagedResult<CaseReportRow>> {
-    const params = new HttpParams()
+  casesReport(includeArchived: boolean, page: number, pageSize: number, query = ''): Observable<PagedResult<CaseReportRow>> {
+    let params = new HttpParams()
       .set('includeArchived', includeArchived)
       .set('page', page)
       .set('pageSize', pageSize);
+    if (query) params = params.set('query', query);
     return this.http.get<PagedResult<CaseReportRow>>(`${this.api}/reports/cases`, { params });
   }
 
-  exportCases(includeArchived: boolean): Observable<Blob> {
-    const params = new HttpParams().set('includeArchived', includeArchived);
+  exportCases(includeArchived: boolean, query = ''): Observable<Blob> {
+    let params = new HttpParams().set('includeArchived', includeArchived);
+    if (query) params = params.set('query', query);
     return this.http.get(`${this.api}/reports/cases/export`, { params, responseType: 'blob' });
   }
 }

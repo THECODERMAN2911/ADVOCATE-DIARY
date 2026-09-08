@@ -6,3 +6,108 @@ html, body {
   margin: 0;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
+
+.calendar-picker.p-datepicker {
+  width: 100%;
+}
+
+.calendar-picker .p-datepicker-calendar {
+  width: 100%;
+}
+
+.calendar-picker .p-datepicker-calendar td > span {
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.calendar-day {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.calendar-case-dot {
+  position: absolute;
+  bottom: 0.2rem;
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 9999px;
+  background: #ef4444;
+}
+
+.p-datatable.p-datatable-sm {
+  overflow: hidden;
+  border: 1px solid var(--p-content-border-color, #e5e7eb);
+  border-radius: 0.75rem;
+  background: var(--p-content-background, #ffffff);
+  box-shadow: 0 4px 16px rgb(15 23 42 / 0.04);
+}
+
+.p-datatable.p-datatable-sm .p-datatable-table-container {
+  overflow-x: auto;
+}
+
+.p-datatable.p-datatable-sm .p-datatable-table {
+  width: 100%;
+}
+
+.p-datatable.p-datatable-sm .p-datatable-thead > tr > th {
+  padding: 0.95rem 1rem;
+  border-color: var(--p-content-border-color, #e5e7eb);
+  background: var(--p-surface-50, #f8fafc);
+  color: var(--p-text-color, #334155);
+  font-size: 1rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.p-datatable.p-datatable-sm .p-datatable-tbody > tr > td {
+  padding: 0.95rem 1rem;
+  border-color: var(--p-content-border-color, #e5e7eb);
+  color: var(--p-text-color, #334155);
+  vertical-align: middle;
+}
+
+.p-datatable.p-datatable-sm .p-datatable-tbody > tr:nth-child(even) {
+  background: color-mix(in srgb, var(--p-surface-50, #f8fafc) 45%, transparent);
+}
+
+.p-datatable.p-datatable-sm .p-datatable-tbody > tr:hover {
+  background: var(--p-primary-50, #eff6ff);
+}
+
+.p-datatable.p-datatable-sm .p-datatable-tbody > tr:last-child > td {
+  border-bottom: 0;
+}
+
+.p-datatable.p-datatable-sm .p-datatable-tbody > tr > td:first-child,
+.p-datatable.p-datatable-sm .p-datatable-thead > tr > th:first-child {
+  padding-left: 1.25rem;
+}
+
+.p-datatable.p-datatable-sm .p-datatable-tbody > tr > td:last-child,
+.p-datatable.p-datatable-sm .p-datatable-thead > tr > th:last-child {
+  padding-right: 1.25rem;
+}
+
+.p-datatable.p-datatable-sm .p-paginator {
+  border-top: 1px solid var(--p-content-border-color, #e5e7eb);
+  border-radius: 0;
+  background: var(--p-surface-50, #f8fafc);
+  padding: 0.65rem 1rem;
+}
+
+.p-datatable.p-datatable-sm .p-paginator .p-paginator-page,
+.p-datatable.p-datatable-sm .p-paginator .p-paginator-next,
+.p-datatable.p-datatable-sm .p-paginator .p-paginator-prev {
+  min-width: 2rem;
+  height: 2rem;
+}
+
+.p-datatable.p-datatable-sm .p-datatable-emptymessage > tr > td {
+  padding: 2.5rem 1rem;
+  color: var(--p-text-muted-color, #64748b);
+}

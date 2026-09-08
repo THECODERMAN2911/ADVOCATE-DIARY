@@ -10,7 +10,9 @@ public class CurrentUser : ICurrentUser
     public CurrentUser(IHttpContextAccessor accessor) => _user = accessor.HttpContext?.User;
 
     public bool IsAuthenticated => _user?.Identity?.IsAuthenticated ?? false;
-    public int? UserId => TryInt(_user?.FindFirstValue("sub"));
+    public int? UserId =>
+        TryInt(_user?.FindFirstValue(ClaimTypes.NameIdentifier))
+        ?? TryInt(_user?.FindFirstValue("sub"));
     public int? FirmId => TryInt(_user?.FindFirstValue("firmId"));
     public string? Role => _user?.FindFirstValue(ClaimTypes.Role);
 

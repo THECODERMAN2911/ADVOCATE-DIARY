@@ -19,6 +19,7 @@ var jwt = builder.Configuration.GetSection(JwtSettings.SectionName).Get<JwtSetti
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        options.MapInboundClaims = false;
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,

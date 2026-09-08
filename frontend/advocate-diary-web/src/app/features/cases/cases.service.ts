@@ -67,6 +67,15 @@ export class CasesService {
     return this.http.get<PagedResult<CaseListItem>>(this.base, { params });
   }
 
+  exportCases(filter: CaseFilter, query = ''): Observable<Blob> {
+    let params = new HttpParams().set('filter', filter);
+    if (query) params = params.set('query', query);
+    return this.http.get(`${environment.apiBaseUrl}/reports/cases/export`, {
+      params,
+      responseType: 'blob',
+    });
+  }
+
   get(id: number): Observable<CaseDetail> { return this.http.get<CaseDetail>(`${this.base}/${id}`); }
   create(r: CaseSaveRequest): Observable<CaseDetail> { return this.http.post<CaseDetail>(this.base, r); }
   update(id: number, r: CaseSaveRequest): Observable<CaseDetail> { return this.http.put<CaseDetail>(`${this.base}/${id}`, r); }

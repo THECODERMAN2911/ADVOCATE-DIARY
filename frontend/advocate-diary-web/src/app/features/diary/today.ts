@@ -9,7 +9,7 @@ import { CaseListItem } from '../cases/cases.service';
   imports: [DatePipe, HearingList],
   template: `
     <div class="flex items-center justify-between mb-4">
-      <h1 class="text-2xl font-semibold">Today's Cause List</h1>
+      <h1 class="text-2xl font-semibold">Today's Case List</h1>
       <span class="text-surface-500">{{ today | date: 'EEEE, dd MMM yyyy' }}</span>
     </div>
     <app-hearing-list [items]="items()" [loading]="loading()" emptyText="No hearings scheduled for today." />

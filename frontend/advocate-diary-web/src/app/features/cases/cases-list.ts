@@ -59,6 +59,15 @@ import {
         [allowEmpty]="false"
       />
 
+      <p-button
+        label="Export to Excel"
+        icon="pi pi-file-excel"
+        severity="success"
+        size="small"
+        [loading]="exporting()"
+        (onClick)="exportExcel()"
+      />
+
       <span class="flex-1"></span>
 
       <input
@@ -89,6 +98,7 @@ import {
       [loading]="loading()"
       [paginator]="true"
       [rows]="pageSize"
+      [first]="(page - 1) * pageSize"
       [totalRecords]="total()"
       [lazy]="true"
       (onLazyLoad)="onLazy($event)"
@@ -196,8 +206,9 @@ export class CasesList {
   rows = signal<CaseListItem[]>([]);
   total = signal(0);
   loading = signal(false);
+  exporting = signal(false);
 
-  private page = 1;
+  page = 1;
 
   // Used for dynamic search
   private searchSubject = new Subject<string>();
@@ -306,6 +317,26 @@ export class CasesList {
   reload() {
     this.page = 1;
     this.load();
+  }
+
+  exportExcel() {
+    this.exporting.set(true);
+    const searchText = this.query.trim();
+    this.svc.exportCases(this.filter, searchText).subscribe({
+      next: (file) => {
+        const url = URL.createObjectURL(file);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `cases-${this.filter.toLowerCase()}.xlsx`;
+        link.click();
+        URL.revokeObjectURL(url);
+        this.exporting.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to export cases:', err);
+        this.exporting.set(false);
+      },
+    });
   }
 
   load() {

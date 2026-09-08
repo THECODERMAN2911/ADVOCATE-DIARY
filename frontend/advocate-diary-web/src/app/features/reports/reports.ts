@@ -1,27 +1,41 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { TableModule, TableLazyLoadEvent } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { TooltipModule } from 'primeng/tooltip';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { TagModule } from 'primeng/tag';
 import { CaseReportRow, DashboardService } from '../dashboard/dashboard.service';
+import { EMPTY, Subject, catchError, debounceTime, distinctUntilChanged, map, switchMap, tap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-reports',
-  imports: [FormsModule, DatePipe, DecimalPipe, TableModule, ButtonModule, ToggleSwitchModule, TagModule],
+  imports: [FormsModule, DatePipe, DecimalPipe, TableModule, ButtonModule, InputTextModule, TooltipModule, ToggleSwitchModule, TagModule],
   template: `
-    <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
-      <h1 class="text-2xl font-semibold">Reports</h1>
-      <div class="flex items-center gap-3">
-        <label class="flex items-center gap-2 text-sm text-surface-600">
-          <p-toggleswitch [(ngModel)]="includeArchived" (onChange)="reload()" /> Include archived
-        </label>
-        <p-button label="Export to Excel" icon="pi pi-file-excel" size="small" [loading]="exporting()" (onClick)="exportExcel()" />
-      </div>
+    <h1 class="text-2xl font-semibold mb-4">Reports</h1>
+
+    <div class="mb-3 flex flex-wrap gap-2 items-center">
+      <label class="flex items-center gap-2 text-sm text-surface-600">
+        <p-toggleswitch [(ngModel)]="includeArchived" (onChange)="reload()" /> Include archived
+      </label>
+      <p-button label="Export to Excel" icon="pi pi-file-excel" size="small" [loading]="exporting()" (onClick)="exportExcel()" />
+      <span class="flex-1"></span>
+      <input
+        pInputText
+        placeholder="Search case no, title, party…"
+        [(ngModel)]="query"
+        (ngModelChange)="onSearchChange($event)"
+      />
+      @if (query) {
+        <p-button icon="pi pi-times" [text]="true" pTooltip="Clear search" (onClick)="clearSearch()" />
+      }
+      <p-button icon="pi pi-search" (onClick)="searchNow()" pTooltip="Search" />
     </div>
 
-    <p-table [value]="rows()" [loading]="loading()" [paginator]="true" [rows]="pageSize" [totalRecords]="total()"
+    <p-table [value]="rows()" [loading]="loading()" [paginator]="true" [rows]="pageSize" [first]="(page - 1) * pageSize" [totalRecords]="total()"
              [lazy]="true" (onLazyLoad)="onLazy($event)" styleClass="p-datatable-sm"
              [tableStyle]="{ 'min-width': '48rem' }">
       <ng-template pTemplate="header">
@@ -46,26 +60,77 @@ import { CaseReportRow, DashboardService } from '../dashboard/dashboard.service'
 })
 export class Reports implements OnInit {
   private svc = inject(DashboardService);
+  private destroyRef = inject(DestroyRef);
 
   rows = signal<CaseReportRow[]>([]);
   total = signal(0);
   loading = signal(false);
   exporting = signal(false);
+  query = '';
   includeArchived = false;
   pageSize = 25;
-  private page = 1;
+  page = 1;
+  private searchChanges = new Subject<string>();
+  private loadChanges = new Subject<void>();
+
+  constructor() {
+    this.searchChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe(() => {
+      this.page = 1;
+      this.loadChanges.next();
+    });
+
+    this.loadChanges.pipe(
+      map(() => ({
+        includeArchived: this.includeArchived,
+        page: this.page,
+        pageSize: this.pageSize,
+        query: this.query.trim(),
+      })),
+      tap(() => this.loading.set(true)),
+      switchMap((request) => this.svc.casesReport(
+        request.includeArchived,
+        request.page,
+        request.pageSize,
+        request.query,
+      ).pipe(
+        catchError(() => {
+          this.loading.set(false);
+          return EMPTY;
+        }),
+      )),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe((r) => {
+      this.rows.set(r.items);
+      this.total.set(r.totalCount);
+      this.loading.set(false);
+    });
+  }
 
   ngOnInit() { }
 
   load() {
-    this.loading.set(true);
-    this.svc.casesReport(this.includeArchived, this.page, this.pageSize).subscribe({
-      next: (r) => { this.rows.set(r.items); this.total.set(r.totalCount); this.loading.set(false); },
-      error: () => this.loading.set(false),
-    });
+    this.loadChanges.next();
   }
 
   reload() {
+    this.page = 1;
+    this.load();
+  }
+
+  onSearchChange(value: string) {
+    this.query = value.trim();
+    this.searchChanges.next(this.query.trim());
+  }
+
+  clearSearch() {
+    this.onSearchChange('');
+  }
+
+  searchNow() {
     this.page = 1;
     this.load();
   }
@@ -78,7 +143,7 @@ export class Reports implements OnInit {
 
   exportExcel() {
     this.exporting.set(true);
-    this.svc.exportCases(this.includeArchived).subscribe({
+    this.svc.exportCases(this.includeArchived, this.query.trim()).subscribe({
       next: (blob) => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');

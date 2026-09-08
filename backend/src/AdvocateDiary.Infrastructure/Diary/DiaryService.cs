@@ -26,7 +26,7 @@ public class DiaryService : IDiaryService
             .Where(c => c.IsActive && c.NextDate >= day && c.NextDate < next)).ToListAsync(ct);
     }
 
-    public async Task<PagedResult<CaseListItemDto>> PreviousAsync(int page, int pageSize, CancellationToken ct = default)
+    public async Task<PagedResult<CaseListItemDto>> PreviousAsync(int page, int pageSize, string? query = null, CancellationToken ct = default)
     {
         if (page < 1) page = 1;
         if (pageSize < 1) pageSize = 20;
@@ -41,6 +41,12 @@ public class DiaryService : IDiaryService
             q = q.IgnoreQueryFilters().Where(c => c.FirmId == firmId);
 
         q = q.Where(c => c.IsActive && c.NextDate != null && c.NextDate < today);
+
+        query = string.IsNullOrWhiteSpace(query) ? null : query.Trim();
+        if (query is not null)
+            q = q.Where(c => c.CaseNumber.Contains(query)
+                || c.Title.Contains(query)
+                || (c.PartyName != null && c.PartyName.Contains(query)));
 
         var total = await q.CountAsync(ct);
 

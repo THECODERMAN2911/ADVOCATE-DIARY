@@ -23,8 +23,8 @@ public class DiaryController : ControllerBase
     /// <summary>Overdue hearings (paginated — this list has no natural upper bound over time).</summary>
     [HttpGet("previous")]
     public async Task<ActionResult<PagedResult<CaseListItemDto>>> Previous(
-        [FromQuery] int page = 1, [FromQuery] int pageSize = 20, CancellationToken ct = default)
-        => Ok(await _diary.PreviousAsync(page, pageSize, ct));
+        [FromQuery] int page = 1, [FromQuery] int pageSize = 20, [FromQuery] string? query = null, CancellationToken ct = default)
+        => Ok(await _diary.PreviousAsync(page, pageSize, query, ct));
 
     /// <summary>Hearings between from and to (inclusive) — for the calendar.</summary>
     [HttpGet("calendar")]

@@ -1,5 +1,6 @@
 using AdvocateDiary.Application.Reports;
 using AdvocateDiary.Application.Common.Models;
+using AdvocateDiary.Application.Cases;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,13 +21,26 @@ public class ReportsController : ControllerBase
         [FromQuery] bool includeArchived = false,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 25,
+        [FromQuery] string? query = null,
         CancellationToken ct = default)
-        => Ok(await _reports.CasesAsync(includeArchived, page, pageSize, ct));
+        => Ok(await _reports.CasesAsync(includeArchived, page, pageSize, query, ct));
 
     [HttpGet("cases/export")]
-    public async Task<IActionResult> ExportCases([FromQuery] bool includeArchived = false, CancellationToken ct = default)
+    public async Task<IActionResult> ExportCases(
+        [FromQuery] bool includeArchived = false,
+        [FromQuery] CaseFilter? filter = null,
+        [FromQuery] string? query = null,
+        CancellationToken ct = default)
     {
-        var bytes = await _reports.CasesExcelAsync(includeArchived, ct);
+        var bytes = await _reports.CasesExcelAsync(includeArchived, filter, query, ct);
         return File(bytes, XlsxContentType, $"cases-{DateTime.UtcNow:yyyyMMdd}.xlsx");
+    }
+
+    [HttpGet("previous/export")]
+    public async Task<IActionResult> ExportPrevious(
+        [FromQuery] string? query = null, CancellationToken ct = default)
+    {
+        var bytes = await _reports.PreviousHearingsExcelAsync(query, ct);
+        return File(bytes, XlsxContentType, $"previous-hearings-{DateTime.UtcNow:yyyyMMdd}.xlsx");
     }
 }

@@ -1,15 +1,21 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { DashboardService, DashboardSummary } from './dashboard.service';
+import { DiaryService } from '../diary/diary.service';
+import { HearingList } from '../diary/hearing-list';
+import { CaseListItem } from '../cases/cases.service';
 
 interface Kpi { label: string; value: string; icon: string; link?: string; accent: string; }
 
 @Component({
   selector: 'app-dashboard',
-  imports: [DecimalPipe, RouterLink],
+  imports: [DatePipe, DecimalPipe, RouterLink, HearingList],
   template: `
-    <h1 class="text-2xl font-semibold mb-4">Dashboard</h1>
+    <div class="flex items-center justify-between mb-4">
+      <h1 class="text-2xl font-semibold">Dashboard</h1>
+      <span class="text-surface-500">{{ today | date: 'EEEE, dd MMM yyyy' }}</span>
+    </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       @for (k of kpis(); track k.label) {
@@ -32,11 +38,40 @@ interface Kpi { label: string; value: string; icon: string; link?: string; accen
         <div class="rounded-xl bg-red-50 p-5 text-center"><div class="text-surface-500 text-sm">Outstanding</div><div class="text-xl font-semibold text-red-600">₹{{ sum.feeBalanceTotal | number:'1.0-0' }}</div></div>
       </div>
     }
+
+    <section class="mb-6 mt-6">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-xl font-semibold">Today's Cases</h2>
+        <a routerLink="/diary/today" class="text-primary text-sm font-medium">View all</a>
+      </div>
+      <app-hearing-list
+        [items]="visibleTodayCases()"
+        [loading]="todayCasesLoading()"
+        emptyText="No cases scheduled for today."
+      />
+      @if (visibleTodayCases().length < todayCases().length) {
+        <div class="flex justify-center mt-4">
+          <button
+            type="button"
+            class="text-primary text-sm font-medium hover:underline"
+            (click)="loadMoreTodayCases()"
+          >
+            Load more
+          </button>
+        </div>
+      }
+    </section>
   `,
 })
 export class Dashboard implements OnInit {
   private svc = inject(DashboardService);
+  private diarySvc = inject(DiaryService);
   s = signal<DashboardSummary | null>(null);
+  readonly today = new Date();
+  todayCases = signal<CaseListItem[]>([]);
+  visibleTodayCaseCount = signal(5);
+  todayCasesLoading = signal(false);
+  visibleTodayCases = computed(() => this.todayCases().slice(0, this.visibleTodayCaseCount()));
 
   readonly kpis = computed<Kpi[]>(() => {
     const d = this.s();
@@ -50,5 +85,14 @@ export class Dashboard implements OnInit {
 
   ngOnInit() {
     this.svc.summary().subscribe((r) => this.s.set(r));
+    this.todayCasesLoading.set(true);
+    this.diarySvc.causeList().subscribe({
+      next: (r) => { this.todayCases.set(r); this.todayCasesLoading.set(false); },
+      error: () => this.todayCasesLoading.set(false),
+    });
+  }
+
+  loadMoreTodayCases() {
+    this.visibleTodayCaseCount.update((count) => count + 5);
   }
 }

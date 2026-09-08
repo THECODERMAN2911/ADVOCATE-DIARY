@@ -28,9 +28,19 @@ export class DiaryService {
 
   // Overdue hearings only grow over a firm's lifetime, so this is server-paginated —
   // never request the whole list.
-  previous(page: number, pageSize: number): Observable<PagedResult<CaseListItem>> {
-    const params = new HttpParams().set('page', page).set('pageSize', pageSize);
+  previous(page: number, pageSize: number, query = ''): Observable<PagedResult<CaseListItem>> {
+    let params = new HttpParams().set('page', page).set('pageSize', pageSize);
+    if (query) params = params.set('query', query);
     return this.http.get<PagedResult<CaseListItem>>(`${this.api}/diary/previous`, { params });
+  }
+
+  exportPrevious(query = ''): Observable<Blob> {
+    let params = new HttpParams();
+    if (query) params = params.set('query', query);
+    return this.http.get(`${this.api}/reports/previous/export`, {
+      params,
+      responseType: 'blob',
+    });
   }
 
   calendar(from: string, to: string): Observable<CaseListItem[]> {

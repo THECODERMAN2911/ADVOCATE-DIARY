@@ -17,9 +17,11 @@ import { IdentityService } from '../../../core/services/identity.service';
         @if (savedProfile()) { <p-message severity="success" text="Profile saved." styleClass="w-full mb-3" /> }
         <form (ngSubmit)="saveProfile()" class="flex flex-col gap-3">
           <label class="text-sm text-surface-600">Full name</label>
-          <input pInputText name="fullName" [(ngModel)]="fullName" class="w-full" required />
+             <input pInputText name="fullName" [ngModel]="fullName()"
+               (ngModelChange)="fullName.set($event)" class="w-full" required />
           <label class="text-sm text-surface-600">Phone</label>
-          <input pInputText name="phone" [(ngModel)]="phone" class="w-full" />
+             <input pInputText name="phone" [ngModel]="phone()"
+               (ngModelChange)="phone.set($event)" class="w-full" />
           <p-button type="submit" label="Save" [loading]="savingProfile()" />
         </form>
       </p-card>
@@ -41,8 +43,8 @@ import { IdentityService } from '../../../core/services/identity.service';
 export class Profile implements OnInit {
   private svc = inject(IdentityService);
 
-  fullName = '';
-  phone = '';
+  fullName = signal('');
+  phone = signal('');
   current = '';
   next = '';
 
@@ -53,13 +55,16 @@ export class Profile implements OnInit {
   pwdError = signal<string | null>(null);
 
   ngOnInit() {
-    this.svc.getMe().subscribe((u) => { this.fullName = u.fullName; this.phone = u.phone ?? ''; });
+    this.svc.getMe().subscribe((u) => {
+      this.fullName.set(u.fullName);
+      this.phone.set(u.phone ?? '');
+    });
   }
 
   saveProfile() {
     this.savingProfile.set(true);
     this.savedProfile.set(false);
-    this.svc.updateProfile({ fullName: this.fullName, phone: this.phone }).subscribe({
+    this.svc.updateProfile({ fullName: this.fullName(), phone: this.phone() }).subscribe({
       next: () => { this.savedProfile.set(true); this.savingProfile.set(false); },
       error: () => this.savingProfile.set(false),
     });

@@ -9,6 +9,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { CardModule } from 'primeng/card';
+import { DatePickerModule } from 'primeng/datepicker';
 import { MasterItem, MastersService } from '../../core/services/masters.service';
 import { CaseSaveRequest, CasesService } from './cases.service';
 
@@ -16,7 +17,7 @@ import { CaseSaveRequest, CasesService } from './cases.service';
   selector: 'app-case-form',
   imports: [
     FormsModule, DecimalPipe, ButtonModule, InputTextModule, InputNumberModule, TextareaModule,
-    SelectModule, ToggleSwitchModule, CardModule,
+    SelectModule, ToggleSwitchModule, CardModule, DatePickerModule,
   ],
   template: `
     <div class="flex items-center justify-between mb-4">
@@ -43,11 +44,17 @@ import { CaseSaveRequest, CasesService } from './cases.service';
             <p-select [options]="stages()" optionLabel="name" optionValue="id" [(ngModel)]="m.caseStageId" name="caseStageId"
                       [showClear]="true" placeholder="Select stage" styleClass="w-full" /></div>
           <div class="flex flex-col gap-1"><label class="text-sm text-surface-600">Filing date</label>
-            <input type="date" pInputText [(ngModel)]="m.filingDate" name="filingDate" [attr.max]="today" class="w-full" /></div>
+            <p-datepicker [(ngModel)]="filingDate" name="filingDate" dateFormat="dd/mm/yy"
+                          [maxDate]="todayDate" [showIcon]="true" iconDisplay="input" [showButtonBar]="true"
+                          placeholder="Select filing date" styleClass="w-full" /></div>
           <div class="flex flex-col gap-1"><label class="text-sm text-surface-600">Previous date</label>
-            <input type="date" pInputText [(ngModel)]="m.previousDate" name="previousDate" [attr.max]="today" class="w-full" /></div>
+            <p-datepicker [(ngModel)]="previousDate" name="previousDate" dateFormat="dd/mm/yy"
+                          [maxDate]="todayDate" [showIcon]="true" iconDisplay="input" [showButtonBar]="true"
+                          placeholder="Select previous date" styleClass="w-full" /></div>
           <div class="flex flex-col gap-1"><label class="text-sm text-surface-600">Next hearing date</label>
-            <input type="date" pInputText [(ngModel)]="m.nextDate" name="nextDate" class="w-full" /></div>
+            <p-datepicker [(ngModel)]="nextDate" name="nextDate" dateFormat="dd/mm/yy"
+                          [minDate]="id ? undefined : todayDate" [showIcon]="true" iconDisplay="input" [showButtonBar]="true"
+                          placeholder="Select next hearing date" styleClass="w-full" /></div>
           <div class="flex flex-col gap-1"><label class="text-sm text-surface-600">Opposite lawyer</label>
             <input pInputText [(ngModel)]="m.oppositeLawyer" name="oppositeLawyer" class="w-full" /></div>
         </div>
@@ -112,8 +119,11 @@ export class CaseForm implements OnInit {
   types = signal<MasterItem[]>([]);
   stages = signal<MasterItem[]>([]);
 
-  /** Today's date (yyyy-MM-dd), used as the max for filing/previous date pickers — no future dates. */
-  readonly today = new Date().toISOString().substring(0, 10);
+  /** Today's local date, used for date-picker limits. */
+  readonly todayDate = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+  filingDate: Date | null = null;
+  previousDate: Date | null = null;
+  nextDate: Date | null = null;
 
   /** Amount already received from the party. FeeBalance is derived from this, never edited directly. */
   feeGiven?: number;
@@ -139,12 +149,15 @@ export class CaseForm implements OnInit {
         this.m = {
           caseNumber: c.caseNumber, title: c.title, defendant: c.defendant,
           courtId: c.courtId, caseTypeId: c.caseTypeId, caseStageId: c.caseStageId, appearingLawyerId: c.appearingLawyerId,
-          filingDate: c.filingDate?.substring(0, 10), previousDate: c.previousDate?.substring(0, 10), nextDate: c.nextDate?.substring(0, 10),
+          filingDate: undefined, previousDate: undefined, nextDate: undefined,
           partyName: c.partyName, partyAddress: c.partyAddress, partyZip: c.partyZip,
           partyPhone: c.partyPhone, partyPhone2: c.partyPhone2, partyEmail: c.partyEmail, oppositeLawyer: c.oppositeLawyer,
           feeAgreed: c.feeAgreed, feeBalance: c.feeBalance, tags: c.tags, remarks: c.remarks,
           smsOptIn: c.smsOptIn, emailOptIn: c.emailOptIn,
         };
+        this.filingDate = this.parseDate(c.filingDate);
+        this.previousDate = this.parseDate(c.previousDate);
+        this.nextDate = this.parseDate(c.nextDate);
         // Fee balance is stored, but the form only lets the advocate enter what's been given —
         // derive that from the existing agreed/balance figures so editing doesn't lose it.
         this.feeGiven = Math.max(0, c.feeAgreed - c.feeBalance);
@@ -155,14 +168,31 @@ export class CaseForm implements OnInit {
   save() {
     // Balance is always derived — never entered directly — so payments and the case record can't drift apart.
     this.m.feeBalance = Math.max(0, (this.m.feeAgreed || 0) - (this.feeGiven || 0));
+    const request: CaseSaveRequest = {
+      ...this.m,
+      filingDate: this.formatDate(this.filingDate),
+      previousDate: this.formatDate(this.previousDate),
+      nextDate: this.formatDate(this.nextDate),
+    };
 
     this.saving.set(true);
     const done = (id: number) => this.router.navigate(['/cases', id]);
     const fail = () => this.saving.set(false);
     if (this.id) {
-      this.svc.update(this.id, this.m).subscribe({ next: (c) => done(c.id), error: fail });
+      this.svc.update(this.id, request).subscribe({ next: (c) => done(c.id), error: fail });
     } else {
-      this.svc.create(this.m).subscribe({ next: (c) => done(c.id), error: fail });
+      this.svc.create(request).subscribe({ next: (c) => done(c.id), error: fail });
     }
+  }
+
+  private parseDate(value?: string) {
+    if (!value) return null;
+    const [year, month, day] = value.substring(0, 10).split('-').map(Number);
+    return new Date(year, month - 1, day);
+  }
+
+  private formatDate(value: Date | null) {
+    if (!value) return undefined;
+    return `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, '0')}-${String(value.getDate()).padStart(2, '0')}`;
   }
 }
