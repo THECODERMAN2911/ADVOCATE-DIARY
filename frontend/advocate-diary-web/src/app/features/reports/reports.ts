@@ -110,7 +110,9 @@ export class Reports implements OnInit {
     });
   }
 
-  ngOnInit() { }
+  ngOnInit() {
+    this.load();
+  }
 
   load() {
     this.loadChanges.next();
