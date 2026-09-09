@@ -11,10 +11,10 @@ import { AuthService } from '../../../core/auth/auth.service';
   selector: 'app-register',
   imports: [FormsModule, RouterLink, ButtonModule, InputTextModule, PasswordModule, MessageModule],
   template: `
-    <div class="min-h-screen flex items-center justify-center bg-surface-100 p-4">
-      <div class="w-full max-w-md bg-surface-0 rounded-2xl shadow-lg p-8">
+    <div class="auth-shell min-h-screen flex items-center justify-center p-4">
+      <div class="auth-card w-full max-w-md rounded-2xl p-8">
         <div class="text-center mb-6">
-          <i class="pi pi-book text-4xl text-primary"></i>
+          <img src="company-logo.png" alt="Advocate Diary" class="auth-brand-mark" />
           <h1 class="text-2xl font-semibold mt-2">Create your firm account</h1>
         </div>
 

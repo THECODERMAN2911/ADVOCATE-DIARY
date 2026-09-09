@@ -12,15 +12,19 @@ interface Kpi { label: string; value: string; icon: string; link?: string; accen
   selector: 'app-dashboard',
   imports: [DatePipe, DecimalPipe, RouterLink, HearingList],
   template: `
-    <div class="flex items-center justify-between mb-4">
-      <h1 class="text-2xl font-semibold">Dashboard</h1>
-      <span class="text-surface-500">{{ today | date: 'EEEE, dd MMM yyyy' }}</span>
+    <div class="dashboard-intro flex items-end justify-between mb-6">
+      <div>
+        <p class="text-primary text-xs font-semibold uppercase tracking-widest mb-2">Practice overview</p>
+        <h1 class="text-3xl font-semibold">Your day at a glance</h1>
+        <p class="text-surface-500 mt-1">Keep every hearing, case, and follow-up moving.</p>
+      </div>
+      <span class="dashboard-date">{{ today | date: 'EEEE, dd MMM yyyy' }}</span>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-7">
       @for (k of kpis(); track k.label) {
-        <a [routerLink]="k.link" class="bg-surface-0 rounded-xl border border-surface-200 p-5 flex items-center gap-4 hover:border-primary transition">
-          <div class="w-12 h-12 rounded-lg flex items-center justify-center {{ k.accent }}">
+        <a [routerLink]="k.link" class="dashboard-kpi rounded-xl p-5 flex items-center gap-4 transition">
+          <div class="dashboard-kpi-icon w-12 h-12 rounded-lg flex items-center justify-center {{ k.accent }}">
             <i class="pi {{ k.icon }} text-xl"></i>
           </div>
           <div>
@@ -33,14 +37,14 @@ interface Kpi { label: string; value: string; icon: string; link?: string; accen
 
     @if (s(); as sum) {
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl">
-        <div class="rounded-xl bg-surface-100 p-5 text-center"><div class="text-surface-500 text-sm">Fees agreed</div><div class="text-xl font-semibold">₹{{ sum.feeAgreedTotal | number:'1.0-0' }}</div></div>
-        <div class="rounded-xl bg-green-50 p-5 text-center"><div class="text-surface-500 text-sm">Fees received</div><div class="text-xl font-semibold text-green-600">₹{{ sum.feeReceivedTotal | number:'1.0-0' }}</div></div>
-        <div class="rounded-xl bg-red-50 p-5 text-center"><div class="text-surface-500 text-sm">Outstanding</div><div class="text-xl font-semibold text-red-600">₹{{ sum.feeBalanceTotal | number:'1.0-0' }}</div></div>
+        <div class="dashboard-fee dashboard-fee-neutral rounded-xl p-5 text-center"><div class="text-surface-500 text-sm">Fees agreed</div><div class="text-xl font-semibold mt-1">₹{{ sum.feeAgreedTotal | number:'1.0-0' }}</div></div>
+        <div class="dashboard-fee dashboard-fee-positive rounded-xl p-5 text-center"><div class="text-surface-500 text-sm">Fees received</div><div class="text-xl font-semibold text-green-600 mt-1">₹{{ sum.feeReceivedTotal | number:'1.0-0' }}</div></div>
+        <div class="dashboard-fee dashboard-fee-warning rounded-xl p-5 text-center"><div class="text-surface-500 text-sm">Outstanding</div><div class="text-xl font-semibold text-red-600 mt-1">₹{{ sum.feeBalanceTotal | number:'1.0-0' }}</div></div>
       </div>
     }
 
-    <section class="mb-6 mt-6">
-      <div class="flex items-center justify-between mb-3">
+    <section class="dashboard-workspace mb-6 mt-7">
+      <div class="flex items-center justify-between mb-4">
         <h2 class="text-xl font-semibold">Today's Cases</h2>
         <a routerLink="/diary/today" class="text-primary text-sm font-medium">View all</a>
       </div>

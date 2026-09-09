@@ -115,7 +115,7 @@ export class FirmSettings implements OnInit {
           address: f.address ?? '',
           city: f.city ?? '',
           phone: f.phone ?? user.phone ?? '',
-          email: f.email ?? ''
+          email: f.email?.trim() || user.email || ''
         });
       },
       error: (err) => {

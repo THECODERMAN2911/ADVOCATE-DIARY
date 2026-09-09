@@ -20,14 +20,16 @@ import { PublicService } from './public.service';
           <p-message severity="success" text="Thanks — we'll get back to you shortly." styleClass="w-full mb-3" />
         }
 
-        <form (ngSubmit)="submit()" class="flex flex-col gap-3">
-          <input pInputText name="name" placeholder="Your name" [(ngModel)]="m.name" required class="w-full" />
-          <input pInputText type="email" name="email" placeholder="Email" [(ngModel)]="m.email" required class="w-full" />
-          <input pInputText name="phone" placeholder="Phone (optional)" [(ngModel)]="m.phone" class="w-full" />
-          <input pInputText name="subject" placeholder="Subject" [(ngModel)]="m.subject" class="w-full" />
-          <textarea pTextarea name="message" rows="5" placeholder="Message" [(ngModel)]="m.message" required class="w-full"></textarea>
-          <p-button type="submit" label="Send message" [loading]="sending()" />
-        </form>
+        <div class="public-form-card rounded-xl p-6">
+          <form (ngSubmit)="submit()" class="flex flex-col gap-3">
+            <input pInputText name="name" placeholder="Your name" [(ngModel)]="m.name" required class="w-full" />
+            <input pInputText type="email" name="email" placeholder="Email" [(ngModel)]="m.email" required class="w-full" />
+            <input pInputText name="phone" placeholder="Phone (optional)" [(ngModel)]="m.phone" class="w-full" />
+            <input pInputText name="subject" placeholder="Subject" [(ngModel)]="m.subject" class="w-full" />
+            <textarea pTextarea name="message" rows="5" placeholder="Message" [(ngModel)]="m.message" required class="w-full"></textarea>
+            <p-button type="submit" label="Send message" [loading]="sending()" />
+          </form>
+        </div>
       </section>
     </app-public-chrome>
   `,

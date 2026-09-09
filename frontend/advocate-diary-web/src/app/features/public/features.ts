@@ -11,7 +11,7 @@ import { PublicChrome } from './public-chrome';
         <p class="text-surface-500 mb-8">Everything an advocate's office needs, modernised.</p>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
           @for (f of items; track f.title) {
-            <div class="flex gap-3">
+            <div class="public-feature-card flex gap-4 p-5 rounded-xl">
               <i class="pi {{ f.icon }} text-primary text-xl mt-1"></i>
               <div><h3 class="font-semibold">{{ f.title }}</h3><p class="text-surface-500 text-sm">{{ f.text }}</p></div>
             </div>

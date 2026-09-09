@@ -11,10 +11,10 @@ import { AuthService } from '../../../core/auth/auth.service';
   selector: 'app-login',
   imports: [FormsModule, RouterLink, ButtonModule, InputTextModule, PasswordModule, MessageModule],
   template: `
-    <div class="min-h-screen flex items-center justify-center bg-surface-100 p-4">
-      <div class="w-full max-w-sm bg-surface-0 rounded-2xl shadow-lg p-8">
+    <div class="auth-shell min-h-screen flex items-center justify-center p-4">
+      <div class="auth-card w-full max-w-sm rounded-2xl p-8">
         <div class="text-center mb-6">
-          <i class="pi pi-book text-4xl text-primary"></i>
+          <img src="company-logo.png" alt="Advocate Diary" class="auth-brand-mark" />
           <h1 class="text-2xl font-semibold mt-2">Advocate Diary</h1>
           <p class="text-surface-500 text-sm">Sign in to your account</p>
         </div>

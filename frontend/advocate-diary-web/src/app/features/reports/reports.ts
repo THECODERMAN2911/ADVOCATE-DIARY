@@ -21,7 +21,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
       <label class="flex items-center gap-2 text-sm text-surface-600">
         <p-toggleswitch [(ngModel)]="includeArchived" (onChange)="reload()" /> Include archived
       </label>
-      <p-button label="Export to Excel" icon="pi pi-file-excel" size="small" [loading]="exporting()" (onClick)="exportExcel()" />
+      <p-button label="Export to Excel" icon="pi pi-file-excel" severity="success" size="small" [loading]="exporting()" (onClick)="exportExcel()" />
       <span class="flex-1"></span>
       <input
         pInputText

@@ -13,7 +13,7 @@ import { CaseListItem } from '../cases/cases.service';
   template: `
     <h1 class="text-2xl font-semibold mb-4">Calendar</h1>
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-      <p-card>
+      <p-card styleClass="calendar-card">
         <p-datepicker
           [inline]="true"
           [(ngModel)]="selected"

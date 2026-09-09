@@ -41,7 +41,9 @@ export const routes: Routes = [
       { path: 'diary/previous', loadComponent: () => import('./features/diary/previous').then((m) => m.DiaryPrevious) },
       { path: 'calendar', loadComponent: () => import('./features/diary/calendar').then((m) => m.CalendarView) },
       { path: 'notifications', loadComponent: () => import('./features/notifications/notifications-log').then((m) => m.NotificationsLog) },
+      { path: 'help/faq', loadComponent: () => import('./features/help/faq').then((m) => m.HelpFaq) },
       { path: 'subscription', loadComponent: () => import('./features/billing/subscription').then((m) => m.SubscriptionPage) },
+      { path: 'refer-colleagues', loadComponent: () => import('./features/referrals/refer-colleagues').then((m) => m.ReferColleagues) },
       { path: 'reports', loadComponent: () => import('./features/reports/reports').then((m) => m.Reports) },
       {
         path: 'masters',

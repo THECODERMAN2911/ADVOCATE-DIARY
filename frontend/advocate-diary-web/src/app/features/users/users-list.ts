@@ -8,6 +8,7 @@ import { PasswordModule } from 'primeng/password';
 import { SelectModule } from 'primeng/select';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
 import { IdentityService } from '../../core/services/identity.service';
 import { ROLES, UserDto } from '../../core/models/identity.models';
 
@@ -15,7 +16,7 @@ import { ROLES, UserDto } from '../../core/models/identity.models';
   selector: 'app-users-list',
   imports: [
     FormsModule, TableModule, DialogModule, ButtonModule, InputTextModule,
-    PasswordModule, SelectModule, ToggleSwitchModule, TagModule,
+    PasswordModule, SelectModule, ToggleSwitchModule, TagModule, TooltipModule,
   ],
   template: `
     <div class="flex items-center justify-between mb-4">
@@ -25,7 +26,7 @@ import { ROLES, UserDto } from '../../core/models/identity.models';
 
     <p-table [value]="users()" [loading]="loading()" styleClass="p-datatable-sm">
       <ng-template pTemplate="header">
-        <tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th></th></tr>
+        <tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th class="w-32"></th></tr>
       </ng-template>
       <ng-template pTemplate="body" let-u>
         <tr>
@@ -35,8 +36,11 @@ import { ROLES, UserDto } from '../../core/models/identity.models';
           <td>
             <p-tag [value]="u.isActive ? 'Active' : 'Inactive'" [severity]="u.isActive ? 'success' : 'danger'" />
           </td>
-          <td class="text-right">
-            <p-button icon="pi pi-pencil" size="small" [text]="true" (onClick)="openEdit(u)" />
+          <td class="w-32">
+            <div class="flex justify-end gap-2">
+              <p-button icon="pi pi-eye" size="small" [text]="true" pTooltip="View user" (onClick)="openView(u)" />
+              <p-button icon="pi pi-pencil" size="small" [text]="true" pTooltip="Edit user" (onClick)="openEdit(u)" />
+            </div>
           </td>
         </tr>
       </ng-template>
@@ -44,6 +48,37 @@ import { ROLES, UserDto } from '../../core/models/identity.models';
         <tr><td colspan="5" class="text-center text-surface-500 py-6">No users yet.</td></tr>
       </ng-template>
     </p-table>
+
+    <p-dialog header="User details" [(visible)]="showView" [modal]="true" [draggable]="false" [resizable]="false"
+              [style]="{ width: '32rem', maxWidth: '96vw' }">
+      @if (viewingUser; as user) {
+        <div class="flex flex-col gap-4 p-2">
+          <div>
+            <div class="text-xs text-surface-500 uppercase tracking-wide">Full name</div>
+            <div class="font-medium mt-1">{{ user.fullName }}</div>
+          </div>
+          <div>
+            <div class="text-xs text-surface-500 uppercase tracking-wide">Email</div>
+            <div class="mt-1">{{ user.email }}</div>
+          </div>
+          <div>
+            <div class="text-xs text-surface-500 uppercase tracking-wide">Phone</div>
+            <div class="mt-1">{{ user.phone || 'Not provided' }}</div>
+          </div>
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <div class="text-xs text-surface-500 uppercase tracking-wide">Role</div>
+              <p-tag [value]="user.role" severity="info" styleClass="mt-1" />
+            </div>
+            <div>
+              <div class="text-xs text-surface-500 uppercase tracking-wide">Status</div>
+              <p-tag [value]="user.isActive ? 'Active' : 'Inactive'"
+                     [severity]="user.isActive ? 'success' : 'danger'" styleClass="mt-1" />
+            </div>
+          </div>
+        </div>
+      }
+    </p-dialog>
 
     <p-dialog [header]="editing ? 'Edit user' : 'Add user'" [(visible)]="showDialog" [modal]="true"
               [style]="{ width: '56rem', maxWidth: '96vw' }"
@@ -104,6 +139,8 @@ export class UsersList implements OnInit {
   saving = signal(false);
 
   showDialog = false;
+  showView = false;
+  viewingUser: UserDto | null = null;
   editing = false;
   editingId: number | null = null;
   form = { fullName: '', email: '', phone: '', role: 'Lawyer', password: '', isActive: true };
@@ -123,6 +160,11 @@ export class UsersList implements OnInit {
     this.editingId = null;
     this.form = { fullName: '', email: '', phone: '', role: 'Lawyer', password: '', isActive: true };
     this.showDialog = true;
+  }
+
+  openView(user: UserDto) {
+    this.viewingUser = user;
+    this.showView = true;
   }
 
   openEdit(u: UserDto) {
