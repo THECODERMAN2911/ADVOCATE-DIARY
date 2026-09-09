@@ -1,0 +1,1 @@
+Nothing needs to be added to .gitignore since the only modified file is a source code file (`frontend/advocate-diary-web/src/app/features/reports/reports.ts`) and there are no build artifacts, dependencies, or temporary files in the changes.
